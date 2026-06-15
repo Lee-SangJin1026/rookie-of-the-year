@@ -3,6 +3,9 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import NoteCard from '../components/NoteCard.astro';
 import FilterBar from '../components/FilterBar.astro';
+import { getNewNoteUrl } from '../config';
+
+const newNoteUrl = getNewNoteUrl();
 
 const allNotes = await getCollection('notes');
 allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -21,6 +24,12 @@ const types = typeOrder.filter((t) => typeSet.has(t));
 ---
 
 <Layout title="Equity Universe - 주식 아카이브">
+  <div class="toolbar">
+    <a class="new-note-btn" href={newNoteUrl} target="_blank" rel="noopener">
+      + 새 노트 작성
+    </a>
+  </div>
+
   <FilterBar themes={themes} types={types} />
 
   {allNotes.length === 0 ? (
@@ -37,6 +46,27 @@ const types = typeOrder.filter((t) => typeSet.has(t));
 </Layout>
 
 <style>
+  .toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .new-note-btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 8px 18px;
+    border-radius: 999px;
+    transition: opacity 0.12s ease;
+  }
+
+  .new-note-btn:hover {
+    opacity: 0.85;
+  }
+
   .notes-grid {
     display: grid;
     grid-template-columns: 1fr;
