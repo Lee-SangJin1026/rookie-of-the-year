@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { getImportanceBadge, getTypeBadge, getCategoryBadge } from '../badges';
 
 interface Props {
   note: CollectionEntry<'notes'>;
@@ -8,11 +9,9 @@ interface Props {
 const { note } = Astro.props;
 const { title, importance, type, category, themes, summary, ticker } = note.data;
 
-const importanceClass =
-  importance === 'high' ? 'badge-high' : importance === 'mid' ? 'badge-mid' : 'badge-low';
-
-const importanceLabel =
-  importance === 'high' ? '중요도: 상' : importance === 'mid' ? '중요도: 중' : '중요도: 하';
+const importanceBadge = getImportanceBadge(importance);
+const typeBadge = getTypeBadge(type);
+const categoryBadge = getCategoryBadge(category);
 
 const base = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -33,9 +32,9 @@ const base = import.meta.env.BASE_URL.endsWith('/')
   </div>
 
   <div class="note-badges">
-    <span class={`badge ${importanceClass}`}>{importanceLabel}</span>
-    <span class="badge badge-accent">{type}</span>
-    <span class="badge badge-outline">{category}</span>
+    <span class={`badge ${importanceBadge.class}`}>{importanceBadge.label}</span>
+    <span class={`badge ${typeBadge.class}`}>{typeBadge.label}</span>
+    <span class={`badge ${categoryBadge.class}`}>{categoryBadge.label}</span>
   </div>
 
   {summary && <p class="note-summary">{summary}</p>}

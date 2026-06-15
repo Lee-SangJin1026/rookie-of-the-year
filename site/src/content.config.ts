@@ -8,12 +8,13 @@ const notes = defineCollection({
   schema: z.object({
     title: z.string(),
     ticker: z.string().optional(),
-    // 포트폴리오 분류 (1~4번)
-    type: z.enum(['1번코어', '2번PERxEPS', '3번주도주', '4번헷지']),
-    // 문제 유형 (이체 / 삼체)
-    category: z.enum(['이체', '삼체']),
-    // 중요도
-    importance: z.enum(['high', 'mid', 'low']),
+    // 포트폴리오 분류: 1번코어 | 2번PERxEPS | 3번주도주 | 4번헷지
+    // (오타가 있어도 빌드가 깨지지 않도록 문자열로 받고, 화면에서 검증/표시함)
+    type: z.string(),
+    // 문제 유형: 이체 | 삼체
+    category: z.string(),
+    // 중요도: high | mid | low
+    importance: z.string(),
     // 테마 태그
     themes: z.array(z.string()).default([]),
     date: z.date(),

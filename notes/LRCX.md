@@ -1,9 +1,9 @@
 ---
 title: "Lam Research"
 ticker: "LRCX"
-type: "2번 실적"
+type: "2번PERxEPS"
 category: "이체"
-importance: "strong"
+importance: "high"
 themes: ["장비", "미국", "반도체", "AI"]
 date: 2026-06-15
 stop_loss: "8%"

@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { getEditNoteUrl } from '../../config';
+import { getImportanceBadge, getTypeBadge, getCategoryBadge } from '../../badges';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes');
@@ -16,11 +17,9 @@ const { title, ticker, type, category, importance, themes, date, stop_loss, sell
   note.data;
 const { Content } = await render(note);
 
-const importanceClass =
-  importance === 'high' ? 'badge-high' : importance === 'mid' ? 'badge-mid' : 'badge-low';
-
-const importanceLabel =
-  importance === 'high' ? '중요도: 상' : importance === 'mid' ? '중요도: 중' : '중요도: 하';
+const importanceBadge = getImportanceBadge(importance);
+const typeBadge = getTypeBadge(type);
+const categoryBadge = getCategoryBadge(category);
 
 const dateLabel = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
 
@@ -45,9 +44,9 @@ const editUrl = getEditNoteUrl(note.id);
       </div>
 
       <div class="badges">
-        <span class={`badge ${importanceClass}`}>{importanceLabel}</span>
-        <span class="badge badge-accent">{type}</span>
-        <span class="badge badge-outline">{category}</span>
+        <span class={`badge ${importanceBadge.class}`}>{importanceBadge.label}</span>
+        <span class={`badge ${typeBadge.class}`}>{typeBadge.label}</span>
+        <span class={`badge ${categoryBadge.class}`}>{categoryBadge.label}</span>
         <span class="badge badge-outline">{dateLabel}</span>
       </div>
 

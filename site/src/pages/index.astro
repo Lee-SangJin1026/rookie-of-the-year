@@ -20,7 +20,10 @@ for (const note of allNotes) {
 }
 
 const themes = [...themeSet].sort();
-const types = typeOrder.filter((t) => typeSet.has(t));
+const types = [
+  ...typeOrder.filter((t) => typeSet.has(t)),
+  ...[...typeSet].filter((t) => !typeOrder.includes(t)).sort(),
+];
 ---
 
 <Layout title="Equity Universe - 주식 아카이브">
