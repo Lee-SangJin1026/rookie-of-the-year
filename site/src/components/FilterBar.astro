@@ -1,0 +1,195 @@
+---
+interface Props {
+  themes: string[];
+  types: string[];
+}
+
+const { themes, types } = Astro.props;
+
+const importanceOptions = [
+  { value: 'high', label: '중요도: 상' },
+  { value: 'mid', label: '중요도: 중' },
+  { value: 'low', label: '중요도: 하' },
+];
+---
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">중요도</span>
+    <div class="filter-options">
+      {importanceOptions.map((opt) => (
+        <button class="filter-btn" data-group="importance" data-value={opt.value}>
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <span class="filter-label">유형</span>
+    <div class="filter-options">
+      {types.map((type) => (
+        <button class="filter-btn" data-group="type" data-value={type}>
+          {type}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <span class="filter-label">테마</span>
+    <div class="filter-options">
+      {themes.map((theme) => (
+        <button class="filter-btn" data-group="theme" data-value={theme}>
+          #{theme}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <button id="reset-filters" class="reset-btn">필터 초기화</button>
+</div>
+
+<style>
+  .filter-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-muted);
+  }
+
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    font-size: 0.82rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--color-accent);
+  }
+
+  .filter-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+  }
+
+  .reset-btn {
+    align-self: flex-start;
+    font-size: 0.82rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+
+  .reset-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-text);
+  }
+
+  @media (min-width: 720px) {
+    .filter-bar {
+      flex-direction: row;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      flex: 1 1 auto;
+      min-width: 180px;
+    }
+
+    .reset-btn {
+      align-self: center;
+    }
+  }
+</style>
+
+<script>
+  const filters: Record<string, Set<string>> = {
+    importance: new Set(),
+    type: new Set(),
+    theme: new Set(),
+  };
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLAnchorElement>('.note-card');
+  const emptyState = document.getElementById('empty-state');
+
+  function applyFilters() {
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const cardThemes = (card.dataset.themes ?? '').split(',').filter(Boolean);
+      const cardImportance = card.dataset.importance ?? '';
+      const cardType = card.dataset.type ?? '';
+
+      const matchesImportance =
+        filters.importance.size === 0 || filters.importance.has(cardImportance);
+      const matchesType = filters.type.size === 0 || filters.type.has(cardType);
+      const matchesTheme =
+        filters.theme.size === 0 || cardThemes.some((t) => filters.theme.has(t));
+
+      const visible = matchesImportance && matchesType && matchesTheme;
+      card.style.display = visible ? '' : 'none';
+      if (visible) visibleCount += 1;
+    });
+
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.group as string;
+      const value = btn.dataset.value as string;
+
+      if (filters[group].has(value)) {
+        filters[group].delete(value);
+        btn.classList.remove('active');
+      } else {
+        filters[group].add(value);
+        btn.classList.add('active');
+      }
+
+      applyFilters();
+    });
+  });
+
+  document.getElementById('reset-filters')?.addEventListener('click', () => {
+    Object.values(filters).forEach((set) => set.clear());
+    buttons.forEach((btn) => btn.classList.remove('active'));
+    applyFilters();
+  });
+</script>

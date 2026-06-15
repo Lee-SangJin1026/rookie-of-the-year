@@ -1,0 +1,153 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { title, ticker, type, category, importance, themes, date, stop_loss, sell_trigger } =
+  note.data;
+const { Content } = await render(note);
+
+const importanceClass =
+  importance === 'high' ? 'badge-high' : importance === 'mid' ? 'badge-mid' : 'badge-low';
+
+const importanceLabel =
+  importance === 'high' ? '중요도: 상' : importance === 'mid' ? '중요도: 중' : '중요도: 하';
+
+const dateLabel = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
+---
+
+<Layout title={`${title} - Rookie of the Year`}>
+  <a href="/" class="back-link">&larr; 목록으로</a>
+
+  <article class="note-detail">
+    <header>
+      <div class="title-row">
+        <h1>{title}</h1>
+        {ticker && <span class="ticker">{ticker}</span>}
+      </div>
+
+      <div class="badges">
+        <span class={`badge ${importanceClass}`}>{importanceLabel}</span>
+        <span class="badge badge-accent">{type}</span>
+        <span class="badge badge-outline">{category}</span>
+        <span class="badge badge-outline">{dateLabel}</span>
+      </div>
+
+      {themes.length > 0 && (
+        <div class="themes">
+          {themes.map((theme) => (
+            <span class="theme-tag">#{theme}</span>
+          ))}
+        </div>
+      )}
+
+      {(stop_loss || sell_trigger) && (
+        <div class="meta-box">
+          {stop_loss && (
+            <p>
+              <strong>손절폭:</strong> {stop_loss}
+            </p>
+          )}
+          {sell_trigger && (
+            <p>
+              <strong>매도 트리거:</strong> {sell_trigger}
+            </p>
+          )}
+        </div>
+      )}
+    </header>
+
+    <div class="content">
+      <Content />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .note-detail {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .title-row h1 {
+    margin: 0;
+  }
+
+  .ticker {
+    color: var(--color-muted);
+    font-size: 1rem;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .theme-tag {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    background: #edf2ff;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  .meta-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .meta-box p {
+    margin: 4px 0;
+  }
+
+  .content {
+    margin-top: 24px;
+    line-height: 1.75;
+  }
+
+  .content :global(h2) {
+    margin-top: 28px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 6px;
+  }
+
+  .content :global(ul) {
+    padding-left: 1.4em;
+  }
+</style>

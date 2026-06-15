@@ -1,0 +1,111 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
+const { note } = Astro.props;
+const { title, importance, type, category, themes, summary, ticker } = note.data;
+
+const importanceClass =
+  importance === 'high' ? 'badge-high' : importance === 'mid' ? 'badge-mid' : 'badge-low';
+
+const importanceLabel =
+  importance === 'high' ? '중요도: 상' : importance === 'mid' ? '중요도: 중' : '중요도: 하';
+---
+
+<a
+  href={`/notes/${note.id}/`}
+  class="note-card"
+  data-themes={themes.join(',')}
+  data-importance={importance}
+  data-type={type}
+  data-category={category}
+>
+  <div class="note-card-header">
+    <h2 class="note-title">{title}</h2>
+    {ticker && <span class="note-ticker">{ticker}</span>}
+  </div>
+
+  <div class="note-badges">
+    <span class={`badge ${importanceClass}`}>{importanceLabel}</span>
+    <span class="badge badge-accent">{type}</span>
+    <span class="badge badge-outline">{category}</span>
+  </div>
+
+  {summary && <p class="note-summary">{summary}</p>}
+
+  {themes.length > 0 && (
+    <div class="note-themes">
+      {themes.map((theme) => (
+        <span class="theme-tag">#{theme}</span>
+      ))}
+    </div>
+  )}
+</a>
+
+<style>
+  .note-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .note-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .note-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .note-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+
+  .note-ticker {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .note-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .note-summary {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+
+  .note-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+  }
+
+  .theme-tag {
+    font-size: 0.78rem;
+    color: var(--color-accent);
+    background: #edf2ff;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+</style>

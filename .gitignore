@@ -1,0 +1,9 @@
+# Astro / Node
+site/node_modules/
+site/dist/
+site/.astro/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

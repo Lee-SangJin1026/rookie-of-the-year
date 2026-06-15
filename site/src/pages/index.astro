@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import NoteCard from '../components/NoteCard.astro';
+import FilterBar from '../components/FilterBar.astro';
+
+const allNotes = await getCollection('notes');
+allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const themeSet = new Set<string>();
+const typeOrder = ['1번코어', '2번PERxEPS', '3번주도주', '4번헷지'];
+const typeSet = new Set<string>();
+
+for (const note of allNotes) {
+  note.data.themes.forEach((t) => themeSet.add(t));
+  typeSet.add(note.data.type);
+}
+
+const themes = [...themeSet].sort();
+const types = typeOrder.filter((t) => typeSet.has(t));
+---
+
+<Layout title="Rookie of the Year - 종목 노트">
+  <FilterBar themes={themes} types={types} />
+
+  {allNotes.length === 0 ? (
+    <p>아직 작성된 노트가 없습니다. notes/ 폴더에 마크다운 파일을 추가해주세요.</p>
+  ) : (
+    <div class="notes-grid">
+      {allNotes.map((note) => <NoteCard note={note} />)}
+    </div>
+  )}
+
+  <p id="empty-state" style="display: none; text-align: center; color: var(--color-muted); margin-top: 24px;">
+    조건에 맞는 노트가 없습니다.
+  </p>
+</Layout>
+
+<style>
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .notes-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .notes-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
